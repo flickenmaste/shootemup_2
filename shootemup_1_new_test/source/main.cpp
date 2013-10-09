@@ -1,5 +1,5 @@
 // By: Will Gilstrap
-// Last edit: 10/8/2013
+// Last edit: 10/9/2013
 // Shoot em up game
 //////////////////////////////////////////////////////////////////////////
 #define _USE_MATH_DEFINES
@@ -27,7 +27,8 @@ bool checkCollision(movableObject& obj1, bullets& obj2) {
 		return false;
 }
 
-void seek(movableObject &player, movableObject& ball){
+void seek(movableObject &player, movableObject& ball)
+{
 	float speed = 0;
 
 	if(player.position.y < ball.position.y - speed) {
@@ -117,7 +118,7 @@ void ifAlive(bullets& obj, bullets& obj2, bullets& obj3)	// function executed if
 
 }
 
-void ifDead(bullets& obj, bullets& obj2, bullets& obj3)	// executed if bullets leave screenb
+void ifDead(bullets& obj, bullets& obj2, bullets& obj3)	// executed if bullets leave screen
 {
 	if (GetMouseButtonDown(MOUSE_BUTTON_1) == true) {
 	// bullet 1
@@ -226,6 +227,7 @@ void updateGame() {
 	RotateSprite(enemy.sprite, 0);
 	MoveSprite(enemy.sprite, enemy.position.x, enemy.position.y);
 	
+	gameProcess = &drawGame;
 	//playerBullet.alive = false; playerBullet2.alive = false; playerBullet3.alive = false; 
 }
 
@@ -248,7 +250,7 @@ int main( int arc, char* argv[] )
 	Initialise(SCREEN_X, SCREEN_Y, false );
 
 	initGame();
-		
+	gameProcess = &updateGame;	
 	do {
 		frameCounter++;
 
@@ -257,6 +259,7 @@ int main( int arc, char* argv[] )
 
 		ClearScreen();
 		
+		//gameProcess();
 		updateGame();
 
 		drawGame();

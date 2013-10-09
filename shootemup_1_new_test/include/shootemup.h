@@ -2,7 +2,7 @@
 #define _SHOOTEMUP_H_
 
 // By: Will Gilstrap
-// Last edit: 10/8/2013
+// Last edit: 10/9/2013
 //////////////////////////////////////////////////////////////////////////
 #include "AIE.h"
 //#include "KeyCodes.h"
@@ -47,6 +47,8 @@ const int PLAYER1_X = 100;
 const int PLAYER1_W = 100;
 const int PLAYER1_H = 50;
 
+void (*gameProcess)() = NULL;
+void drawGame();
 
 // global variables 
 unsigned int bgImage = -1;
