@@ -2,7 +2,7 @@
 #define _SHOOTEMUP_H_
 
 // By: Will Gilstrap
-// Last edit: 10/7/2013
+// Last edit: 10/8/2013
 //////////////////////////////////////////////////////////////////////////
 #include "AIE.h"
 //#include "KeyCodes.h"
@@ -51,9 +51,9 @@ const int PLAYER1_H = 50;
 // global variables 
 unsigned int bgImage = -1;
 movableObject player1 = {687, 386, 0, 0, -1 , 100, 50};
-bullets playerBullet = {0, -1, 0, 4, -1 , 10, 10, false, true};
-bullets playerBullet2 = {0, -1, -4, 4, -1 , 10, 10, false, true};
-bullets playerBullet3 = {0, -1, -4, 4, -1 , 10, 10, false, true};
+bullets playerBullet = {0, 790, 0, 4, -1 , 10, 10, false, true};
+bullets playerBullet2 = {0, 790, -4, 4, -1 , 10, 10, false, true};
+bullets playerBullet3 = {0, 790, -4, 4, -1 , 10, 10, false, true};
 movableObject enemy = {-500, 800, 0, 1, -1 , 50, 50};
 bool g_gameOver = false;
 vector<bullets> bulletLoaded;

@@ -1,5 +1,6 @@
 // By: Will Gilstrap
-// Last edit: 10/7/2013
+// Last edit: 10/8/2013
+// Shoot em up game
 //////////////////////////////////////////////////////////////////////////
 #define _USE_MATH_DEFINES
 
@@ -53,6 +54,7 @@ void movePlayer(movableObject& obj)	// function to make the player sprite follow
 	obj.position.y = y;
 	movableObject mouse = {x, y, 0, 0, -1 , 50, 50};
 	seek(player1, mouse);
+	MoveSprite(player1.sprite, player1.position.x, player1.position.y);
 	return;
 }
 
@@ -104,7 +106,6 @@ void playerShoot(bullets& obj, bullets& obj2, bullets& obj3)	// function to test
 
 void ifAlive(bullets& obj, bullets& obj2, bullets& obj3)	// function executed if player is shooting
 {
-	
 	//bullet 1
 	obj.position.y -= obj.speed.y;
 	//bullet 2
@@ -118,7 +119,7 @@ void ifAlive(bullets& obj, bullets& obj2, bullets& obj3)	// function executed if
 
 void ifDead(bullets& obj, bullets& obj2, bullets& obj3)	// executed if bullets leave screenb
 {
-	
+	if (GetMouseButtonDown(MOUSE_BUTTON_1) == true) {
 	// bullet 1
 	int x; int y;
 	GetMouseLocation(x,y);
@@ -139,7 +140,8 @@ void ifDead(bullets& obj, bullets& obj2, bullets& obj3)	// executed if bullets l
 	if (obj3.position.y < 0)
 	obj3.position.y = y;
 
-	playerBullet.alive = false; playerBullet2.alive = false; playerBullet3.alive = false; 
+	playerBullet.alive = false; playerBullet2.alive = false; playerBullet3.alive = false;
+	}
 }
 
 void spawnEnemy(movableObject& obj)	// function to spawn a basic enemy
@@ -199,7 +201,7 @@ void updateGame() {
 	playerShoot(playerBullet, playerBullet2, playerBullet3);
 	spawnEnemy(enemy);
 	if (playerBullet.alive == true && playerBullet2.alive == true && playerBullet3.alive == true)
-	ifAlive(playerBullet, playerBullet2, playerBullet3);
+		ifAlive(playerBullet, playerBullet2, playerBullet3);
 
 
 	if (playerBullet.dead == true && playerBullet2.dead == true && playerBullet3.dead == true)
