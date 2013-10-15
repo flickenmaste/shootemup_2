@@ -1,5 +1,5 @@
 // By: Will Gilstrap
-// Last edit: 10/14/2013
+// Last edit: 10/15/2013
 // Shoot em up game
 //////////////////////////////////////////////////////////////////////////
 #define _USE_MATH_DEFINES
@@ -15,13 +15,43 @@
 #include <vector>
 #include "shootemup.h"
 
-
 bool checkCollision(movableObject& obj1, bullets& obj2) {
 	int x; int y;
 	GetMouseLocation(x,y);
-	if (obj1.position.x - 5 < obj2.position.x && obj1.position.x + 25 > obj2.position.x &&
-			obj1.position.y + 25 > obj2.position.x &&
-			obj1.position.y - 25 < obj2.position.x)
+	double rE = obj1.position.x;
+	double radiusEnemy = 25;
+
+	double rB = obj2.position.x;
+	double radiusBullet = 5;
+
+	double distX = obj1.position.x - obj2.position.x;
+	double distY = obj1.position.y - obj2.position.y;
+
+	double dist = sqrt((distX * distX) + (distY * distY));
+	double radii = (radiusEnemy + radiusBullet) * (radiusEnemy + radiusBullet);
+
+	if (dist < radiusEnemy + radiusBullet)
+		return true;
+	else
+		return false;
+}
+
+bool checkCollision(movableObject& obj1, movableObject& obj2) {
+	int x; int y;
+	GetMouseLocation(x,y);
+	double rE = obj1.position.x;
+	double radiusEnemy = 25;
+
+	double rB = obj2.position.x;
+	double radiusBullet = 50;
+
+	double distX = obj1.position.x - obj2.position.x;
+	double distY = obj1.position.y - obj2.position.y;
+
+	double dist = sqrt((distX * distX) + (distY * distY));
+	double radii = (radiusEnemy + radiusBullet) * (radiusEnemy + radiusBullet);
+
+	if (dist < radiusEnemy + radiusBullet)
 		return true;
 	else
 		return false;
@@ -192,6 +222,13 @@ void spawnEnemy(movableObject& obj)	// function to spawn a basic enemy
 	obj.position.y += obj.speed.y;
 }
 
+void resetEnemy(movableObject& obj)
+{
+	int spawn = rand() % SCREEN_X;
+	obj.position.x = spawn;
+	obj.position.y = 0;
+}
+
 // check if one object has collided with another object
 // returns true if the two objects have collided
 bool checkCollision(movableObject& obj1) {	
@@ -218,6 +255,7 @@ void initGame() {
 	playerBullet2.sprite = CreateSprite( "./images/bullet.png", 10, 10, true );
 	playerBullet3.sprite = CreateSprite( "./images/bullet.png", 10, 10, true );
 	enemy.sprite = CreateSprite( "./images/enemy.png", 50, 50, true );
+	enemy2.sprite = CreateSprite( "./images/enemy.png", 50, 50, true );
 	
 }
 
@@ -229,6 +267,25 @@ void destroyGame() {
 	DestroySprite(playerBullet2.sprite);
 	DestroySprite(playerBullet3.sprite);
 	DestroySprite(enemy.sprite);
+	DestroySprite(enemy2.sprite);
+}
+
+void checkEnemyCollision()
+{
+	if (playerBullet.dead == true && playerBullet2.dead == true && playerBullet3.dead == true)
+		ifDead(playerBullet, playerBullet2, playerBullet3);
+
+	if (checkCollision(enemy, playerBullet) == true || checkCollision(enemy, playerBullet2) == true || checkCollision(enemy, playerBullet3) == true)
+	{
+		scores++;
+		resetEnemy(enemy);
+	}
+
+	if (checkCollision(enemy2, playerBullet) == true || checkCollision(enemy2, playerBullet2) == true || checkCollision(enemy2, playerBullet3) == true)
+	{
+		scores++;
+		resetEnemy(enemy2);
+	}
 }
 
 // update the game logic here
@@ -243,12 +300,17 @@ void updateGame() {
 
 
 	if (playerBullet.dead == true && playerBullet2.dead == true && playerBullet3.dead == true)
-	ifDead(playerBullet, playerBullet2, playerBullet3);
+		ifDead(playerBullet, playerBullet2, playerBullet3);
 
-	if (checkCollision(enemy, playerBullet) == true || checkCollision(enemy, playerBullet2) == true || checkCollision(enemy, playerBullet3) == true)
-	{
-		scores++;
-	}
+	checkEnemyCollision();
+
+	spawnEnemy(enemy2);
+
+	if (checkCollision(enemy, player1) == true)
+		gameProcess = &gameOverState;
+
+	if (checkCollision(enemy2, player1) == true)
+		gameProcess = &gameOverState;
 
 	char score[10];
 	itoa(scores,score,10);
@@ -267,6 +329,7 @@ void updateGame() {
 
 	RotateSprite(enemy.sprite, 0);
 	MoveSprite(enemy.sprite, enemy.position.x, enemy.position.y);
+	MoveSprite(enemy2.sprite, enemy2.position.x, enemy2.position.y);
 
 	if (IsKeyDown(KEY_SPECIAL+38) == true)
 		gameProcess = &menuState;
@@ -283,20 +346,9 @@ void drawGame() {
 	DrawSprite(playerBullet3.sprite);
 	DrawSprite(player1.sprite);
 	DrawSprite(enemy.sprite);
+	DrawSprite(enemy2.sprite);
 }
-/*
-bool checkMouseClick(movableObject &play)
-{
-	int x; int y;
-	GetMouseLocation(x,y);
-	if (x > play.position.x + 50  && x < play.position.x - 50 && y < play.position.y + 15 && y > play.position.y - 15)
-		return true;
-	//if (y > play.position.y + 15 && y < play.position.y- 15)
-		//return true;
-	else
-		return false;
-}
-*/
+
 void initMenu()
 {
 	bgMenu = CreateSprite( "./images/menu3.jpg", SCREEN_X, SCREEN_Y, true );
@@ -340,6 +392,42 @@ void playState()
 	drawGame();
 }
 
+void initGameOver()
+{
+	bgGameOver = CreateSprite( "./images/gameover.jpg", SCREEN_X, SCREEN_Y, true );
+	MoveSprite(bgGameOver, SCREEN_X>>1, SCREEN_Y>>1);
+}
+
+void updateGameOver()
+{
+	if (IsKeyDown(KEY_SPECIAL+38) == true)
+		gameProcess = &menuState;
+	//if (GetMouseButtonDown(MOUSE_BUTTON_1) == true && checkMouseClick(playGame) == true)
+		//gameProcess = &playState;
+}
+
+void drawGameOver()
+{
+	//DrawSprite(bgMenu);
+	DrawString("Game over", SCREEN_X / 2, SCREEN_Y / 2, SColour(0,0xFF,0,0));
+	DrawSprite(bgGameOver);
+}
+
+void destroyGameOver()
+{
+	DestroySprite(bgGameOver);
+}
+
+void gameOverState()
+{
+	ClearScreen();
+	updateGameOver();
+	drawGameOver();
+	resetEnemy(enemy);
+	resetEnemy(enemy2);
+	scores = 0;
+}
+
 // entry point of the program
 int main( int arc, char* argv[] )
 {	
@@ -354,6 +442,7 @@ int main( int arc, char* argv[] )
 	*/
 	initGame();
 	initMenu();
+	initGameOver();
 	gameProcess = &menuState;	
 	do {
 		frameCounter++;
