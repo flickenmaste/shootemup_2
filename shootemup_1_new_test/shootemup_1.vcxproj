@@ -99,10 +99,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="resources\fonts\arial.fnt" />
+    <None Include="resources\fonts\ka1.ttf" />
     <None Include="resources\images\bg.jpg" />
     <None Include="resources\images\bullet.png" />
     <None Include="resources\images\enemy.png" />
+    <None Include="resources\images\menu.jpg" />
+    <None Include="resources\images\menu2.jpg" />
+    <None Include="resources\images\menu3.jpg" />
     <None Include="resources\images\player.png" />
     <None Include="resources\shaders\StaticFW_Pixel.glsl" />
     <None Include="resources\shaders\StaticFW_Vertex.glsl" />

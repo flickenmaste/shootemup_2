@@ -1,5 +1,5 @@
 // By: Will Gilstrap
-// Last edit: 10/9/2013
+// Last edit: 10/14/2013
 // Shoot em up game
 //////////////////////////////////////////////////////////////////////////
 #define _USE_MATH_DEFINES
@@ -19,7 +19,7 @@
 bool checkCollision(movableObject& obj1, bullets& obj2) {
 	int x; int y;
 	GetMouseLocation(x,y);
-	if (obj1.position.x - 25 < obj2.position.x && obj1.position.x + 25 > obj2.position.x &&
+	if (obj1.position.x - 5 < obj2.position.x && obj1.position.x + 25 > obj2.position.x &&
 			obj1.position.y + 25 > obj2.position.x &&
 			obj1.position.y - 25 < obj2.position.x)
 		return true;
@@ -27,9 +27,29 @@ bool checkCollision(movableObject& obj1, bullets& obj2) {
 		return false;
 }
 
-void seek(movableObject &player, movableObject& ball)
+void seekX(movableObject &player, movableObject& ball) // code to make the player sprite follow behind mouse
 {
-	float speed = 0;
+	float speed = 1;
+
+	if(player.position.x < ball.position.x - speed) {
+		int diff = ball.position.x - player.position.x;
+		if(diff > speed)
+			player.position.x += speed;
+		else
+			player.position.x += diff;
+	}
+	else if (player.position.x > ball.position.x + speed) {
+		int diff = player.position.x - ball.position.x;
+		if(diff > speed)
+			player.position.x -= speed;
+		else
+			player.position.x -= diff;
+	}
+}
+
+void seekY(movableObject &player, movableObject& ball) // code to make the player sprite follow behind mouse
+{
+	float speed = 1;
 
 	if(player.position.y < ball.position.y - speed) {
 		int diff = ball.position.y - player.position.y;
@@ -51,10 +71,13 @@ void movePlayer(movableObject& obj)	// function to make the player sprite follow
 {
 	int x; int y;
 	GetMouseLocation(x,y);
-	obj.position.x = x;
-	obj.position.y = y;
+	//obj.position.x = x;
+	//obj.position.y = y;
 	movableObject mouse = {x, y, 0, 0, -1 , 50, 50};
-	seek(player1, mouse);
+	if (x <= SCREEN_X) // to keep player going off screen
+		seekX(player1, mouse);
+	if (y <= SCREEN_Y)	// to keep player going off screen
+		seekY(player1, mouse);
 	MoveSprite(player1.sprite, player1.position.x, player1.position.y);
 	return;
 }
@@ -118,12 +141,25 @@ void ifAlive(bullets& obj, bullets& obj2, bullets& obj3)	// function executed if
 
 }
 
+int getPlayerLocationX()
+{
+	int locX = player1.position.x;
+	return locX;
+}
+
+int getPlayerLocationY()
+{
+	int locY = player1.position.y;
+	return locY;
+}
+
 void ifDead(bullets& obj, bullets& obj2, bullets& obj3)	// executed if bullets leave screen
 {
 	if (GetMouseButtonDown(MOUSE_BUTTON_1) == true) {
 	// bullet 1
 	int x; int y;
-	GetMouseLocation(x,y);
+	x = getPlayerLocationX(); y = getPlayerLocationY();
+	//GetMouseLocation(x,y);
 	if (obj.position.y < 0)
 	obj.position.x = x;
 	if (obj.position.y < 0)
@@ -198,6 +234,7 @@ void destroyGame() {
 // update the game logic here
 void updateGame() {
 	//playerBullet.alive = false; playerBullet2.alive = false; playerBullet3.alive = false; 
+	ClearScreen();
 	movePlayer(player1);
 	playerShoot(playerBullet, playerBullet2, playerBullet3);
 	spawnEnemy(enemy);
@@ -210,9 +247,13 @@ void updateGame() {
 
 	if (checkCollision(enemy, playerBullet) == true || checkCollision(enemy, playerBullet2) == true || checkCollision(enemy, playerBullet3) == true)
 	{
-		std::cout << "It's working." << std::endl;
+		scores++;
 	}
 
+	char score[10];
+	itoa(scores,score,10);
+	DrawString("Score: ", 1000, 25, SColour(0,0xFF,0,0));
+	DrawString(score, 1100, 25, SColour(0,0x7F,0,0x7F));
 
 	RotateSprite(player1.sprite, 0);
 	MoveSprite(player1.sprite, player1.position.x, player1.position.y);
@@ -226,21 +267,77 @@ void updateGame() {
 
 	RotateSprite(enemy.sprite, 0);
 	MoveSprite(enemy.sprite, enemy.position.x, enemy.position.y);
-	
-	gameProcess = &drawGame;
+
+	if (IsKeyDown(KEY_SPECIAL+38) == true)
+		gameProcess = &menuState;
+
 	//playerBullet.alive = false; playerBullet2.alive = false; playerBullet3.alive = false; 
 }
 
 // draws each frame of the game
 void drawGame() {
-	
+
 	DrawSprite(bgImage);
 	DrawSprite(playerBullet.sprite);
 	DrawSprite(playerBullet2.sprite);
 	DrawSprite(playerBullet3.sprite);
 	DrawSprite(player1.sprite);
 	DrawSprite(enemy.sprite);
+}
+/*
+bool checkMouseClick(movableObject &play)
+{
+	int x; int y;
+	GetMouseLocation(x,y);
+	if (x > play.position.x + 50  && x < play.position.x - 50 && y < play.position.y + 15 && y > play.position.y - 15)
+		return true;
+	//if (y > play.position.y + 15 && y < play.position.y- 15)
+		//return true;
+	else
+		return false;
+}
+*/
+void initMenu()
+{
+	bgMenu = CreateSprite( "./images/menu3.jpg", SCREEN_X, SCREEN_Y, true );
+	MoveSprite(bgMenu, SCREEN_X>>1, SCREEN_Y>>1);
+}
 
+void updateMenu()
+{
+	if (IsKeyDown(32) == true)
+		gameProcess = &playState;
+	//if (GetMouseButtonDown(MOUSE_BUTTON_1) == true && checkMouseClick(playGame) == true)
+		//gameProcess = &playState;
+}
+
+void drawMenu()
+{
+	//DrawSprite(bgMenu);
+	DrawString("Menu", SCREEN_X / 2, SCREEN_Y / 2, SColour(0,0xFF,0,0));
+	DrawString("Press SPACE to play...", SCREEN_X / 2 - 100, SCREEN_Y / 2 + 50, SColour(0,255,255,255));
+	//DrawString("Exit", SCREEN_X / 2, SCREEN_Y / 2 + 100, SColour(255,4,45,255));
+	DrawString("Controls: LEFT MOUSE to shoot", 870, 750, SColour(0,255,0,255));
+	DrawSprite(bgMenu);
+}
+
+void destroyMenu()
+{
+	DestroySprite(bgMenu);
+}
+
+void menuState()
+{
+	ClearScreen();
+	updateMenu();
+	drawMenu();
+}
+
+void playState()
+{
+	ClearScreen();
+	updateGame();
+	drawGame();
 }
 
 // entry point of the program
@@ -248,21 +345,24 @@ int main( int arc, char* argv[] )
 {	
 	// First we need to create our Game Framework
 	Initialise(SCREEN_X, SCREEN_Y, false );
-
+	/*
+	initMenu();
+	menuProcess = &updateMenu;
+	do {
+		menuProcess();
+	} while (menuEnd == false);
+	*/
 	initGame();
-	gameProcess = &updateGame;	
+	initMenu();
+	gameProcess = &menuState;	
 	do {
 		frameCounter++;
 
 		if(frameCounter > 5000)
 			frameCounter = 0;
-
-		ClearScreen();
 		
-		//gameProcess();
-		updateGame();
-
-		drawGame();
+		gameProcess();
+		
 	} while ( FrameworkUpdate() == false );
 
 	destroyGame();
